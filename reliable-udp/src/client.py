@@ -11,7 +11,7 @@ def parse_arguments():
                         help='Target server IP address')
     parser.add_argument('--target-port', type=int, default=5000,
                         help='Target server port')
-    parser.add_argument('--timeout', type=int, default=1,
+    parser.add_argument('--timeout', type=float, default=0.0,
                         help='Timeout in seconds before retransmission')
     return parser.parse_args()
 
