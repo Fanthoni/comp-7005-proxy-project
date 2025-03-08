@@ -1,6 +1,3 @@
-
-# comp-7005-proxy-project
-
 # Reliable UDP Communication Protocol
 
 ## Overview
