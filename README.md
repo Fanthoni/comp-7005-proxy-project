@@ -51,7 +51,7 @@ reliable-udp/
 
 1. Clone the repository:
    ```
-   git clone https://github.com/yourusername/reliable-udp.git
+   git clone https://github.com/Fanthoni/comp-7005-proxy-project.git
    cd reliable-udp
    ```
 
