@@ -3,6 +3,9 @@ import socket
 import argparse
 import time
 import sys
+import numpy as np
+import matplotlib.pyplot as plt
+from time import localtime, strftime
 
 def parse_arguments():
     """Parse command line arguments."""
@@ -95,6 +98,15 @@ def main():
     print(f"Packet loss rate: {(retransmissions/(packets_sent+0.0001))*100:.2f}%")
     
     client_socket.close()
+
+    # Draw graph
+    x = np.array(["Sent", "Received", "Retransmissions", "Lost"])
+    y = np.array([packets_sent, acks_received, retransmissions, packets_sent-acks_received])
+    plt.bar(x, y)
+    plt.xlabel("Packets")
+    plt.ylabel("Number of Packets")
+    plt.title("Client Packet Communication Graph")
+    plt.savefig("graphs/Client Graph - " + strftime("%Y-%m-%d %H:%M:%S", localtime()))
 
 if __name__ == "__main__":
     main()
