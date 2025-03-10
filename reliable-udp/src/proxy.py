@@ -6,6 +6,9 @@ import time
 import threading
 import queue
 import sys
+import numpy as np
+import matplotlib.pyplot as plt
+from time import localtime, strftime
 
 def parse_arguments():
     """Parse command line arguments."""
@@ -112,6 +115,14 @@ def main():
         'server_to_client_delayed': 0,
         'total_packets': 0
     }
+
+    # Delay Array
+    delayTotal = []
+    delayClient = []
+    delayServer = []
+
+    # Delay starts from 0 ms latency
+    delayTotal.append(0)
     
     print("\n" + "="*50)
     print("UDP PROXY WITH NETWORK SIMULATION")
@@ -205,6 +216,9 @@ def main():
                         delayed_packets.put((send_time, proxy_socket, latest_client, data))
                         metrics['server_to_client_delayed'] += 1
                         log(args.verbose, f"  ACTION: DELAYED packet to client by {delay*1000:.1f}ms", force=True)
+                    
+                        # Add delay time to server delay array
+                        delayServer.append(delay)
                     else:
                         # Forward to the client immediately
                         log(args.verbose, f"  ACTION: FORWARDED to client: {latest_client}", force=True)
@@ -243,6 +257,9 @@ def main():
                     delayed_packets.put((send_time, proxy_socket, server_addr, data))
                     metrics['client_to_server_delayed'] += 1
                     log(args.verbose, f"  ACTION: DELAYED packet to server by {delay*1000:.1f}ms", force=True)
+                
+                    # Add delay time to client delay array
+                    delayClient.append(delay)
                 else:
                     # Forward to server immediately
                     log(args.verbose, f"  ACTION: FORWARDED to server: {server_addr}", force=True)
@@ -278,6 +295,13 @@ def main():
                 print(f"  - Delayed:   {metrics['server_to_client_delayed']} ({s2c_delay_pct:.1f}%)")
                 
                 print("="*50)
+
+                # Add total delay time to delay total
+                delayTotal.append(sum(delayClient) + sum(delayServer))
+
+                # Empty delay arrays
+                delayClient.clear()
+                delayServer.clear()
                 
     except KeyboardInterrupt:
         print("\nProxy shutting down gracefully...")
@@ -286,6 +310,14 @@ def main():
     finally:
         proxy_socket.close()
         print("Proxy socket closed.")
+        
+        # Draw latency graph and save the file
+        y = np.array(delayTotal) * 1000
+        plt.plot(y)
+        plt.xlabel("Every 10 Packets")
+        plt.ylabel("Latency in ms")
+        plt.title("Proxy Latency with Delay Configuration Graph")
+        plt.savefig("graphs/Proxy Graph - " + strftime("%Y-%m-%d %H:%M:%S", localtime()))
 
 if __name__ == "__main__":
     main()
