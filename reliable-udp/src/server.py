@@ -3,6 +3,9 @@ import socket
 import argparse
 import time
 import threading
+import numpy as np
+import matplotlib.pyplot as plt
+from time import localtime, strftime
 
 def parse_arguments():
     """Parse command line arguments."""
@@ -117,6 +120,15 @@ def main():
         print(f"ACKs sent: {acks_sent}")
         print(f"Duplication rate: {(duplicate_packets/packets_received)*100:.2f}%")
         server_socket.close()
+
+   # Draw graph
+    x = np.array(["Sent", "Received", "Retransmissions", "Lost"])
+    y = np.array([acks_sent, packets_received, 0, acks_sent-packets_received])
+    plt.bar(x, y)
+    plt.xlabel("Packets")
+    plt.ylabel("Number of Packets")
+    plt.title("Server Packet Communication Graph")
+    plt.savefig("graphs/Server Graph - " + strftime("%Y-%m-%d %H:%M:%S", localtime()))
 
 if __name__ == "__main__":
     main()
