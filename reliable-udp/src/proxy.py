@@ -170,8 +170,272 @@ def log(verbose, message, force=False):
     if verbose or force:
         print(f"[{time.strftime('%H:%M:%S')}] {message}")
 
+def print_current_config(config):
+    """Print the current configuration settings."""
+    print("\n" + "="*50)
+    print("CURRENT NETWORK SIMULATION SETTINGS:")
+    print("="*50)
+    print(f"  Client→Server:")
+    print(f"    - Drop chance: {config['client_drop']*100:.1f}%")
+    print(f"    - Delay chance: {config['client_delay']*100:.1f}%")
+    print(f"    - Delay time: {config['client_delay_time_range'][0]*1000:.0f}-{config['client_delay_time_range'][1]*1000:.0f}ms")
+    print(f"  Server→Client:")
+    print(f"    - Drop chance: {config['server_drop']*100:.1f}%")
+    print(f"    - Delay chance: {config['server_delay']*100:.1f}%")
+    print(f"    - Delay time: {config['server_delay_time_range'][0]*1000:.0f}-{config['server_delay_time_range'][1]*1000:.0f}ms")
+    print("="*50)
+
+def command_interface(config):
+    """Command interface for dynamic parameter updates."""
+    print("\nDynamic Configuration Interface Active")
+    print("Enter 'help' for available commands")
+    
+    while True:
+        try:
+            command = input("\nCommand> ").strip()
+            
+            if command.lower() == 'quit' or command.lower() == 'exit':
+                print("Exiting command interface...")
+                break
+                
+            elif command.lower() == 'help':
+                print("\nAvailable commands:")
+                print("  show                - Display current configuration")
+                print("  set <param> <value> - Set a specific parameter")
+                print("  reset               - Reset all parameters to 0")
+                print("  presets             - Show available presets")
+                print("  preset <name>       - Load a specific preset")
+                print("  exit/quit           - Exit command interface")
+                print("\nParameters:")
+                print("  client-drop <0-100>        - Client drop chance %")
+                print("  server-drop <0-100>        - Server drop chance %")
+                print("  client-delay <0-100>       - Client delay chance %")
+                print("  server-delay <0-100>       - Server delay chance %")
+                print("  client-delay-time <ms>     - Client delay time in ms")
+                print("  server-delay-time <ms>     - Server delay time in ms")
+                print("  client-delay-range <min-max> - Client delay range in ms")
+                print("  server-delay-range <min-max> - Server delay range in ms")
+            
+            elif command.lower() == 'show':
+                print_current_config(config)
+                
+            elif command.lower() == 'reset':
+                config['client_drop'] = 0.0
+                config['server_drop'] = 0.0
+                config['client_delay'] = 0.0
+                config['server_delay'] = 0.0
+                config['client_delay_time_range'] = (0.1, 0.1)
+                config['server_delay_time_range'] = (0.1, 0.1)
+                print("All parameters reset to 0")
+                
+            elif command.lower() == 'presets':
+                print("\nAvailable presets:")
+                print("  perfect    - 0% drop, 0% delay")
+                print("  mild       - 10% drop, 20% delay (100ms)")
+                print("  moderate   - 25% drop, 40% delay (100-300ms)")
+                print("  severe     - 50% drop, 60% delay (200-500ms)")
+                print("  chaotic    - 70% drop, 80% delay (300-1000ms)")
+                print("  blackhole  - 100% drop, 0% delay")
+                
+            elif command.lower().startswith('preset '):
+                preset_name = command.split(' ')[1].strip().lower()
+                
+                if preset_name == 'perfect':
+                    config['client_drop'] = 0.0
+                    config['server_drop'] = 0.0
+                    config['client_delay'] = 0.0
+                    config['server_delay'] = 0.0
+                    config['client_delay_time_range'] = (0.1, 0.1)
+                    config['server_delay_time_range'] = (0.1, 0.1)
+                    print("Loaded 'perfect' preset")
+                
+                elif preset_name == 'mild':
+                    config['client_drop'] = 0.1
+                    config['server_drop'] = 0.1
+                    config['client_delay'] = 0.2
+                    config['server_delay'] = 0.2
+                    config['client_delay_time_range'] = (0.1, 0.1)
+                    config['server_delay_time_range'] = (0.1, 0.1)
+                    print("Loaded 'mild' preset")
+                
+                elif preset_name == 'moderate':
+                    config['client_drop'] = 0.25
+                    config['server_drop'] = 0.25
+                    config['client_delay'] = 0.4
+                    config['server_delay'] = 0.4
+                    config['client_delay_time_range'] = (0.1, 0.3)
+                    config['server_delay_time_range'] = (0.1, 0.3)
+                    print("Loaded 'moderate' preset")
+                
+                elif preset_name == 'severe':
+                    config['client_drop'] = 0.5
+                    config['server_drop'] = 0.5
+                    config['client_delay'] = 0.6
+                    config['server_delay'] = 0.6
+                    config['client_delay_time_range'] = (0.2, 0.5)
+                    config['server_delay_time_range'] = (0.2, 0.5)
+                    print("Loaded 'severe' preset")
+                
+                elif preset_name == 'chaotic':
+                    config['client_drop'] = 0.7
+                    config['server_drop'] = 0.7
+                    config['client_delay'] = 0.8
+                    config['server_delay'] = 0.8
+                    config['client_delay_time_range'] = (0.3, 1.0)
+                    config['server_delay_time_range'] = (0.3, 1.0)
+                    print("Loaded 'chaotic' preset")
+                
+                elif preset_name == 'blackhole':
+                    config['client_drop'] = 1.0
+                    config['server_drop'] = 1.0
+                    config['client_delay'] = 0.0
+                    config['server_delay'] = 0.0
+                    config['client_delay_time_range'] = (0.1, 0.1)
+                    config['server_delay_time_range'] = (0.1, 0.1)
+                    print("Loaded 'blackhole' preset")
+                
+                else:
+                    print(f"Unknown preset: {preset_name}")
+            
+            elif command.lower().startswith('set '):
+                parts = command.split(' ')
+                if len(parts) < 3:
+                    print("Invalid command format. Use 'set <param> <value>'")
+                    continue
+                
+                param = parts[1].lower()
+                value = parts[2]
+                
+                if param == 'client-drop':
+                    try:
+                        drop = float(value)
+                        if 0 <= drop <= 100:
+                            config['client_drop'] = drop / 100.0
+                            print(f"Client drop chance set to {drop}%")
+                        else:
+                            print("Value must be between 0 and 100")
+                    except ValueError:
+                        print("Invalid value. Must be a number between 0 and 100")
+                
+                elif param == 'server-drop':
+                    try:
+                        drop = float(value)
+                        if 0 <= drop <= 100:
+                            config['server_drop'] = drop / 100.0
+                            print(f"Server drop chance set to {drop}%")
+                        else:
+                            print("Value must be between 0 and 100")
+                    except ValueError:
+                        print("Invalid value. Must be a number between 0 and 100")
+                
+                elif param == 'client-delay':
+                    try:
+                        delay = float(value)
+                        if 0 <= delay <= 100:
+                            config['client_delay'] = delay / 100.0
+                            print(f"Client delay chance set to {delay}%")
+                        else:
+                            print("Value must be between 0 and 100")
+                    except ValueError:
+                        print("Invalid value. Must be a number between 0 and 100")
+                
+                elif param == 'server-delay':
+                    try:
+                        delay = float(value)
+                        if 0 <= delay <= 100:
+                            config['server_delay'] = delay / 100.0
+                            print(f"Server delay chance set to {delay}%")
+                        else:
+                            print("Value must be between 0 and 100")
+                    except ValueError:
+                        print("Invalid value. Must be a number between 0 and 100")
+                
+                elif param == 'client-delay-time':
+                    try:
+                        delay_ms = float(value)
+                        if delay_ms >= 0:
+                            delay_sec = delay_ms / 1000.0
+                            config['client_delay_time_range'] = (delay_sec, delay_sec)
+                            print(f"Client delay time set to {delay_ms}ms")
+                        else:
+                            print("Value must be non-negative")
+                    except ValueError:
+                        print("Invalid value. Must be a non-negative number")
+                
+                elif param == 'server-delay-time':
+                    try:
+                        delay_ms = float(value)
+                        if delay_ms >= 0:
+                            delay_sec = delay_ms / 1000.0
+                            config['server_delay_time_range'] = (delay_sec, delay_sec)
+                            print(f"Server delay time set to {delay_ms}ms")
+                        else:
+                            print("Value must be non-negative")
+                    except ValueError:
+                        print("Invalid value. Must be a non-negative number")
+                
+                elif param == 'client-delay-range':
+                    try:
+                        min_max = value.split('-')
+                        if len(min_max) != 2:
+                            print("Invalid range format. Use 'min-max'")
+                            continue
+                        
+                        min_ms = float(min_max[0])
+                        max_ms = float(min_max[1])
+                        
+                        if min_ms >= 0 and max_ms >= min_ms:
+                            config['client_delay_time_range'] = (min_ms / 1000.0, max_ms / 1000.0)
+                            print(f"Client delay range set to {min_ms}-{max_ms}ms")
+                        else:
+                            print("Min must be non-negative and max must be >= min")
+                    except ValueError:
+                        print("Invalid values. Must be numbers in format 'min-max'")
+                
+                elif param == 'server-delay-range':
+                    try:
+                        min_max = value.split('-')
+                        if len(min_max) != 2:
+                            print("Invalid range format. Use 'min-max'")
+                            continue
+                        
+                        min_ms = float(min_max[0])
+                        max_ms = float(min_max[1])
+                        
+                        if min_ms >= 0 and max_ms >= min_ms:
+                            config['server_delay_time_range'] = (min_ms / 1000.0, max_ms / 1000.0)
+                            print(f"Server delay range set to {min_ms}-{max_ms}ms")
+                        else:
+                            print("Min must be non-negative and max must be >= min")
+                    except ValueError:
+                        print("Invalid values. Must be numbers in format 'min-max'")
+                
+                else:
+                    print(f"Unknown parameter: {param}")
+            
+            else:
+                print(f"Unknown command: {command}")
+                print("Enter 'help' for available commands")
+                
+        except KeyboardInterrupt:
+            print("\nExiting command interface...")
+            break
+        except Exception as e:
+            print(f"Error: {e}")
+
 def main():
     args = parse_arguments()
+    
+    # Create a shared configuration dictionary
+    config = {
+        'client_drop': args.client_drop,
+        'server_drop': args.server_drop,
+        'client_delay': args.client_delay,
+        'server_delay': args.server_delay,
+        'client_delay_time_range': args.client_delay_time_range,
+        'server_delay_time_range': args.server_delay_time_range,
+        'verbose': args.verbose
+    }
     
     # Create UDP socket for the proxy
     proxy_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -213,13 +477,13 @@ def main():
     print(f"FORWARDING TO: {args.server_ip}:{args.server_port}")
     print("\nNETWORK SIMULATION SETTINGS:")
     print(f"  Client→Server:")
-    print(f"    - Drop chance: {args.client_drop*100:.1f}%")
-    print(f"    - Delay chance: {args.client_delay*100:.1f}%")
-    print(f"    - Delay time: {args.client_delay_time_range[0]*1000:.0f}-{args.client_delay_time_range[1]*1000:.0f}ms")
+    print(f"    - Drop chance: {config['client_drop']*100:.1f}%")
+    print(f"    - Delay chance: {config['client_delay']*100:.1f}%")
+    print(f"    - Delay time: {config['client_delay_time_range'][0]*1000:.0f}-{config['client_delay_time_range'][1]*1000:.0f}ms")
     print(f"  Server→Client:")
-    print(f"    - Drop chance: {args.server_drop*100:.1f}%")
-    print(f"    - Delay chance: {args.server_delay*100:.1f}%")
-    print(f"    - Delay time: {args.server_delay_time_range[0]*1000:.0f}-{args.server_delay_time_range[1]*1000:.0f}ms")
+    print(f"    - Drop chance: {config['server_drop']*100:.1f}%")
+    print(f"    - Delay chance: {config['server_delay']*100:.1f}%")
+    print(f"    - Delay time: {config['server_delay_time_range'][0]*1000:.0f}-{config['server_delay_time_range'][1]*1000:.0f}ms")
     print("="*50)
     
     # Function to process delayed packets
@@ -243,7 +507,7 @@ def main():
                 
                 # Send the packet
                 sock.sendto(data, addr)
-                log(args.verbose, f"  DELIVERED delayed packet ({packet_type}) to {addr}", force=True)
+                log(config['verbose'], f"  DELIVERED delayed packet ({packet_type}) to {addr}", force=True)
                 
                 # Mark the task as done
                 delayed_packets.task_done()
@@ -254,7 +518,12 @@ def main():
     delay_thread = threading.Thread(target=process_delayed_packets, daemon=True)
     delay_thread.start()
     
+    # Start the command interface thread
+    command_thread = threading.Thread(target=command_interface, args=(config,), daemon=True)
+    command_thread.start()
+    
     print("Proxy ready to receive packets...")
+    print("Command interface started in parallel. Type 'help' for available commands.")
     
     try:
         while True:
@@ -281,28 +550,28 @@ def main():
                 else:
                     packet_info += f"[Unparseable packet: {data[:20]}...]"
                 
-                log(args.verbose, packet_info, force=True)
+                log(config['verbose'], packet_info, force=True)
                 
                 if latest_client:
-                    # Check if we should drop this packet
-                    if should_drop_packet(args.server_drop):
+                    # Check if we should drop this packet (using dynamic config)
+                    if should_drop_packet(config['server_drop']):
                         metrics['server_to_client_dropped'] += 1
-                        log(args.verbose, f"  ACTION: DROPPED packet to client (probability: {args.server_drop*100:.1f}%)", force=True)
-                    elif should_delay_packet(args.server_delay):
-                        # Calculate when to send the packet
-                        delay = get_random_delay(args.server_delay_time_range)
+                        log(config['verbose'], f"  ACTION: DROPPED packet to client (probability: {config['server_drop']*100:.1f}%)", force=True)
+                    elif should_delay_packet(config['server_delay']):
+                        # Calculate when to send the packet (using dynamic config)
+                        delay = get_random_delay(config['server_delay_time_range'])
                         send_time = time.time() + delay
                         
                         # Queue the packet for delayed sending
                         delayed_packets.put((send_time, proxy_socket, latest_client, data))
                         metrics['server_to_client_delayed'] += 1
-                        log(args.verbose, f"  ACTION: DELAYED packet to client by {delay*1000:.1f}ms", force=True)
+                        log(config['verbose'], f"  ACTION: DELAYED packet to client by {delay*1000:.1f}ms", force=True)
                     
                         # Add delay time to server delay array
                         delayServer.append(delay)
                     else:
                         # Forward to the client immediately
-                        log(args.verbose, f"  ACTION: FORWARDED to client: {latest_client}", force=True)
+                        log(config['verbose'], f"  ACTION: FORWARDED to client: {latest_client}", force=True)
                         proxy_socket.sendto(data, latest_client)
                 else:
                     print(f"  ERROR: No client to forward to. Packet dropped.")
@@ -319,31 +588,31 @@ def main():
                 else:
                     packet_info += f"[Unparseable packet: {data[:20]}...]"
                 
-                log(args.verbose, packet_info, force=True)
+                log(config['verbose'], packet_info, force=True)
                 
                 # Update latest client
                 latest_client = addr
-                log(args.verbose, f"  Client address updated: {latest_client}")
+                log(config['verbose'], f"  Client address updated: {latest_client}")
                 
-                # Check if we should drop this packet
-                if should_drop_packet(args.client_drop):
+                # Check if we should drop this packet (using dynamic config)
+                if should_drop_packet(config['client_drop']):
                     metrics['client_to_server_dropped'] += 1
-                    log(args.verbose, f"  ACTION: DROPPED packet to server (probability: {args.client_drop*100:.1f}%)", force=True)
-                elif should_delay_packet(args.client_delay):
-                    # Calculate when to send the packet
-                    delay = get_random_delay(args.client_delay_time_range)
+                    log(config['verbose'], f"  ACTION: DROPPED packet to server (probability: {config['client_drop']*100:.1f}%)", force=True)
+                elif should_delay_packet(config['client_delay']):
+                    # Calculate when to send the packet (using dynamic config)
+                    delay = get_random_delay(config['client_delay_time_range'])
                     send_time = time.time() + delay
                     
                     # Queue the packet for delayed sending
                     delayed_packets.put((send_time, proxy_socket, server_addr, data))
                     metrics['client_to_server_delayed'] += 1
-                    log(args.verbose, f"  ACTION: DELAYED packet to server by {delay*1000:.1f}ms", force=True)
+                    log(config['verbose'], f"  ACTION: DELAYED packet to server by {delay*1000:.1f}ms", force=True)
                 
                     # Add delay time to client delay array
                     delayClient.append(delay)
                 else:
                     # Forward to server immediately
-                    log(args.verbose, f"  ACTION: FORWARDED to server: {server_addr}", force=True)
+                    log(config['verbose'], f"  ACTION: FORWARDED to server: {server_addr}", force=True)
                     proxy_socket.sendto(data, server_addr)
             
             # Print metrics every 10 packets
