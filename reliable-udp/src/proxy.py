@@ -10,6 +10,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from time import localtime, strftime
 
+# maximum port number
+MAX_PORT_NUM = 65535
+
 def parse_arguments():
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(description='UDP Proxy with Network Simulation')
@@ -37,6 +40,68 @@ def parse_arguments():
                         help='Enable verbose logging')
     
     args = parser.parse_args()
+
+    # Error checking and handling
+
+    # if listen port is not numeric
+    if(str(args.listen_port).isnumeric() == False):
+
+        # show error message and exit
+        usage(1, "The listen port number must be a positive integer.")
+
+    # else if port number exceeds maximum valid port number
+    elif(int(args.listen_port) > MAX_PORT_NUM):
+
+        # show error message and exit
+        usage(1, "Valid listen port number range is between 0 to 65535.")
+
+    # if server port is not numeric
+    if(str(args.server_port).isnumeric() == False):
+
+        # show error message and exit
+        usage(1, "The server port number must be a positive integer.")
+
+    # else if port number exceeds maximum valid port number
+    elif(int(args.server_port) > MAX_PORT_NUM):
+
+        # show error message and exit
+        usage(1, "Valid server port number range is between 0 to 65535.")
+
+    # if client drop is a negative number
+    if(int(args.client_drop) < 0):
+
+        # show error message and exit
+        usage(1, "The client drop rate cannot be negative.")
+
+    # if server drop is a negative number
+    if(int(args.server_drop) < 0):
+
+        # show error message and exit
+        usage(1, "The server drop rate cannot be negative.")
+
+    # if client delay is a negative number
+    if(int(args.client_delay) < 0):
+
+        # show error message and exit
+        usage(1, "The client delay rate cannot be negative.")
+
+    # if server delay is a negative number
+    if(int(args.server_delay) < 0):
+
+        # show error message and exit
+        usage(1, "The server delay rate cannot be negative.")
+
+    # if client delay time is a negative number
+    if(int(args.client_delay_time) < 0):
+
+        # show error message and exit
+        usage(1, "The client delay time cannot be negative.")
+
+    # if server delay time is a negative number
+    if(int(args.server_delay_time) < 0):
+
+        # show error message and exit
+        usage(1, "The server delay time cannot be negative.")
     
     # Convert percentages to probabilities
     args.client_drop /= 100.0
@@ -49,6 +114,17 @@ def parse_arguments():
     args.server_delay_time_range = parse_delay_time(args.server_delay_time)
     
     return args
+
+def usage(exit_code, exit_message):
+
+    # if error message exists
+    if(exit_message):
+
+        # print error message
+        print(exit_message)
+    
+    # exit the program using the exit_code
+    sys.exit(exit_code)
 
 def parse_delay_time(delay_time_str):
     """Parse delay time string into a tuple of (min, max) delays in seconds."""
