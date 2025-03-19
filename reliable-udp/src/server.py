@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import sys
 import socket
 import argparse
 import time
@@ -7,6 +8,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from time import localtime, strftime
 
+# maximum port number
+MAX_PORT_NUM = 65535
+
 def parse_arguments():
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(description='Reliable UDP Server')
@@ -14,7 +18,35 @@ def parse_arguments():
                         help='IP address to listen on')
     parser.add_argument('--listen-port', type=int, default=5000,
                         help='Port to listen on')
-    return parser.parse_args()
+    
+    args = parser.parse_args()
+
+    # Error checking and handling
+
+    # if listen port is not numeric
+    if(str(args.listen_port).isnumeric() == False):
+
+        # show error message and exit
+        usage(1, "The listen port number must be a positive integer.")
+
+    # else if listen port number exceeds maximum valid port number
+    elif(int(args.listen_port) > MAX_PORT_NUM):
+
+        # show error message and exit
+        usage(1, "Valid listen port number range is between 0 to 65535.")
+
+    return args
+
+def usage(exit_code, exit_message):
+
+    # if error message exists
+    if(exit_message):
+
+        # print error message
+        print(exit_message)
+    
+    # exit the program using the exit_code
+    sys.exit(exit_code)
 
 def create_packet(seq_num, message_type, payload=""):
     """Create a packet with the protocol format."""
