@@ -8,6 +8,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from time import localtime, strftime
 
+# maximum port number
+MAX_PORT_NUM = 65535
+
 def parse_arguments():
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(description='Reliable UDP Client')
@@ -17,7 +20,41 @@ def parse_arguments():
                         help='Target server port')
     parser.add_argument('--timeout', type=float, default=1.0,
                         help='Timeout in seconds before retransmission (0.0 for non-blocking)')
-    return parser.parse_args()
+    
+    args = parser.parse_args()
+
+    # Error checking and handling
+
+    # if target port is not numeric
+    if(str(args.target_port).isnumeric() == False):
+
+        # show error message and exit
+        usage(1, "The target port number must be a positive integer.")
+
+    # else if target port number exceeds maximum valid port number
+    elif(int(args.target_port) > MAX_PORT_NUM):
+
+        # show error message and exit
+        usage(1, "Valid target port number range is between 0 to 65535.")
+
+    # if timeout is a negative number
+    if(int(args.timeout) < 0):
+
+        # show error message and exit
+        usage(1, "Timeout cannot be negative.")
+
+    return args
+
+def usage(exit_code, exit_message):
+
+    # if error message exists
+    if(exit_message):
+
+        # print error message
+        print(exit_message)
+    
+    # exit the program using the exit_code
+    sys.exit(exit_code)
 
 def create_packet(seq_num, message_type, payload=""):
     """Create a packet with the protocol format."""
