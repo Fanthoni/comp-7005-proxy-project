@@ -10,8 +10,6 @@ The system consists of three main components:
 2. **Server** - Receives messages from the client and sends acknowledgments.
 3. **Proxy Server** - Sits between the client and server to simulate network unreliability (packet loss and delays).
 
-![System Architecture](images/system_architecture.png)
-
 ## Protocol
 
 The system uses a simple protocol for communication:
@@ -38,18 +36,18 @@ The system uses a simple protocol for communication:
 ## Installation
 
 1. Clone the repository:
-   ```
+   ```bash
    git clone https://github.com/Fanthoni/comp-7005-proxy-project.git
    cd reliable-udp
    ```
 
 2. Install required dependencies:
-   ```
-   pip install numpy matplotlib
+   ```bash
+   pip install -r requirements.txt
    ```
 
 3. Make sure the scripts have execution permissions:
-   ```
+   ```bash
    chmod +x server.py client.py proxy.py
    ```
 
@@ -98,17 +96,17 @@ python client.py [--target-ip IP] [--target-port PORT] [--timeout SECONDS]
 ## Example Setup
 
 1. Start the server:
-   ```
+   ```bash
    python server.py --listen-port 5000
    ```
 
 2. Start the proxy with 50% packet loss simulation:
-   ```
+   ```bash
    python proxy.py --listen-port 5001 --server-port 5000 --client-drop 50 --server-drop 50 --verbose
    ```
 
 3. Start the client:
-   ```
+   ```bash
    python client.py --target-port 5001 --timeout 2.0
    ```
 
